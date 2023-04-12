@@ -44,8 +44,8 @@ int game_over(GameState *state) {
     int sum;
 
     // check rows
+    sum = 0;
     for (i = 0; i < BOARD_SIZE; i++) {
-        sum = 0;
         for (j = 0; j < BOARD_SIZE; j++) {
             sum += state->board[i][j];
         }
@@ -154,60 +154,60 @@ return best_score;
 }
 
 void *computer_move(void *arg) {
-GameState *state = (GameState *) arg;
-int best_score = -100;
-int i, j;
-Move move;
-for (i = 0; i < BOARD_SIZE; i++) {
-    for (j = 0; j < BOARD_SIZE; j++) {
-        if (state->board[i][j] == EMPTY) {
-            state->board[i][j] = COMPUTER_PIECE;
-            move.row = i;
-            move.col = j;
-            move.score = minimax(state, PLAYER);
-            state->board[i][j] = EMPTY;
-            if (move.score > best_score) {
-                best_score = move.score;
-                state->board[move.row][move.col] = COMPUTER_PIECE;
+    GameState *state = (GameState *) arg;
+    int best_score = -100;
+    int i, j;
+    Move move;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            if (state->board[i][j] == EMPTY) {
+                state->board[i][j] = COMPUTER_PIECE;
+                move.row = i;
+                move.col = j;
+                move.score = minimax(state, PLAYER);
+                state->board[i][j] = EMPTY;
+                if (move.score > best_score) {
+                    best_score = move.score;
+                    state->board[move.row][move.col] = COMPUTER_PIECE;
+                }
             }
         }
     }
-}
-state->turn = PLAYER;
-pthread_exit(NULL);
+    state->turn = PLAYER;
+    pthread_exit(NULL);
 
 }
 
 int main() {
-GameState *state = (GameState *) malloc(sizeof(GameState));
-int i, j;
-for (i = 0; i < BOARD_SIZE; i++) {
-    for (j = 0; j < BOARD_SIZE; j++) {
+    GameState *state = (GameState *) malloc(sizeof(GameState));
+    int i, j;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
         state->board[i][j] = EMPTY;
     }
 }
 
-state->turn = PLAYER;
+    state->turn = PLAYER;
 
-pthread_t computer_thread;
+    pthread_t computer_thread;
 
-while (1) {
-    if (state->turn == PLAYER) {
-        int row, col;
-        printf("Enter row (0-2) and column (0-2) separated by a space: ");
-        scanf("%d %d", &row, &col);
+    while (1) {
+        if (state->turn == PLAYER) {
+            int row, col;
+            printf("Enter row (0-2) and column (0-2) separated by a space: ");
+            scanf("%d %d", &row, &col);
 
-        if (state->board[row][col] != EMPTY) {
-            printf("That space is already occupied. Try again.\n");
+            if (state->board[row][col] != EMPTY) {
+                printf("That space is already occupied. Try again.\n");
+            } else {
+                state->board[row][col] = PLAYER_PIECE;
+                state->turn = COMPUTER;
+            }
         } else {
-            state->board[row][col] = PLAYER_PIECE;
-            state->turn = COMPUTER;
+            pthread_create(&computer_thread, NULL, computer_move, (void *) state);
+            pthread_join(computer_thread, NULL);
+            state->turn = PLAYER;
         }
-    } else {
-        pthread_create(&computer_thread, NULL, computer_move, (void *) state);
-        pthread_join(computer_thread, NULL);
-        state->turn = PLAYER;
-    }
 
     display_board(state);
 
