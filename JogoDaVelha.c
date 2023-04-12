@@ -1,104 +1,230 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
 
-char board[3][3]; // tabuleiro do jogo
+#define PLAYER 0
+#define COMPUTER 1
 
-void init_board()
-{
+#define EMPTY 0
+#define PLAYER_PIECE 1
+#define COMPUTER_PIECE 2
+
+#define BOARD_SIZE 3
+
+typedef struct {
+    int board[BOARD_SIZE][BOARD_SIZE];
+    int turn;
+} GameState;
+
+typedef struct {
+    int row;
+    int col;
+    int score;
+} Move;
+
+void display_board(GameState *state) {
     int i, j;
-    for (i = 0; i < 3; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            board[i][j] = '-';
-        }
-    }
-}
-
-void print_board()
-{
-    int i, j;
-    for (i = 0; i < 3; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            printf("%c ", board[i][j]);
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            if (state->board[i][j] == EMPTY) {
+                printf(" - ");
+            } else if (state->board[i][j] == PLAYER_PIECE) {
+                printf(" X ");
+            } else {
+                printf(" O ");
+            }
         }
         printf("\n");
     }
+    printf("\n");
 }
 
-int check_winner(char player)
-{
+int game_over(GameState *state) {
     int i, j;
-    // checa linhas
-    for (i = 0; i < 3; i++)
-    {
-        if (board[i][0] == player && board[i][1] == player && board[i][2] == player)
-        {
-            return 1;
+    int sum;
+
+    // check rows
+    for (i = 0; i < BOARD_SIZE; i++) {
+        sum = 0;
+        for (j = 0; j < BOARD_SIZE; j++) {
+            sum += state->board[i][j];
+        }
+        if (sum == PLAYER_PIECE * BOARD_SIZE) {
+            return PLAYER;
+        } else if (sum == COMPUTER_PIECE * BOARD_SIZE) {
+            return COMPUTER;
         }
     }
-    // checa colunas
-    for (j = 0; j < 3; j++)
-    {
-        if (board[0][j] == player && board[1][j] == player && board[2][j] == player)
-        {
-            return 1;
+
+    // check columns
+    for (j = 0; j < BOARD_SIZE; j++) {
+        sum = 0;
+        for (i = 0; i < BOARD_SIZE; i++) {
+            sum += state->board[i][j];
+        }
+        if (sum == PLAYER_PIECE * BOARD_SIZE) {
+            return PLAYER;
+        } else if (sum == COMPUTER_PIECE * BOARD_SIZE) {
+            return COMPUTER;
         }
     }
-    // checa diagonais
-    if (board[0][0] == player && board[1][1] == player && board[2][2] == player)
-    {
-        return 1;
+
+    // check diagonals
+    sum = 0;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        sum += state->board[i][i];
     }
-    if (board[0][2] == player && board[1][1] == player && board[2][0] == player)
-    {
-        return 1;
+    if (sum == PLAYER_PIECE * BOARD_SIZE) {
+        return PLAYER;
+    } else if (sum == COMPUTER_PIECE * BOARD_SIZE) {
+        return COMPUTER;
     }
-    return 0;
+
+    sum = 0;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        sum += state->board[i][BOARD_SIZE - i - 1];
+    }
+    if (sum == PLAYER_PIECE * BOARD_SIZE) {
+        return PLAYER;
+    } else if (sum == COMPUTER_PIECE * BOARD_SIZE) {
+        return COMPUTER;
+    }
+
+    // check for tie
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            if (state->board[i][j] == EMPTY) {
+                return -1;
+            }
+        }
+    }
+    return EMPTY;
 }
 
-void play_game()
-{
-    char player = 'X';
-    int row, col;
-    int turn = 0;
-    init_board();
-    while (turn < 9)
-    {
-        printf("Jogador %c, digite a linha (0 a 2) e coluna (0 a 2) da jogada: ", player);
+int minimax(GameState *state, int player) {
+    int result = game_over(state);
+    if (result != EMPTY) {
+        if (result == PLAYER) {
+            return -1;
+        } else if (result == COMPUTER) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    int best_score;
+    int i, j;
+    Move move;
+    if (player == COMPUTER) {
+       
+    best_score = -100;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            if (state->board[i][j] == EMPTY) {
+                state->board[i][j] = COMPUTER_PIECE;
+                move.row = i;
+                move.col = j;
+                move.score = minimax(state, PLAYER);
+                state->board[i][j] = EMPTY;
+                if (move.score > best_score) {
+                    best_score = move.score;
+                }
+            }
+        }
+    }
+} else {
+    best_score = 100;
+    for (i = 0; i < BOARD_SIZE; i++) {
+        for (j = 0; j < BOARD_SIZE; j++) {
+            if (state->board[i][j] == EMPTY) {
+                state->board[i][j] = PLAYER_PIECE;
+                move.row = i;
+                move.col = j;
+                move.score = minimax(state, COMPUTER);
+                state->board[i][j] = EMPTY;
+                if (move.score < best_score) {
+                    best_score = move.score;
+                }
+            }
+        }
+    }
+}
+return best_score;
+}
+
+void *computer_move(void *arg) {
+GameState *state = (GameState *) arg;
+int best_score = -100;
+int i, j;
+Move move;
+for (i = 0; i < BOARD_SIZE; i++) {
+    for (j = 0; j < BOARD_SIZE; j++) {
+        if (state->board[i][j] == EMPTY) {
+            state->board[i][j] = COMPUTER_PIECE;
+            move.row = i;
+            move.col = j;
+            move.score = minimax(state, PLAYER);
+            state->board[i][j] = EMPTY;
+            if (move.score > best_score) {
+                best_score = move.score;
+                state->board[move.row][move.col] = COMPUTER_PIECE;
+            }
+        }
+    }
+}
+state->turn = PLAYER;
+pthread_exit(NULL);
+
+}
+
+int main() {
+GameState *state = (GameState *) malloc(sizeof(GameState));
+int i, j;
+for (i = 0; i < BOARD_SIZE; i++) {
+    for (j = 0; j < BOARD_SIZE; j++) {
+        state->board[i][j] = EMPTY;
+    }
+}
+
+state->turn = PLAYER;
+
+pthread_t computer_thread;
+
+while (1) {
+    if (state->turn == PLAYER) {
+        int row, col;
+        printf("Enter row (0-2) and column (0-2) separated by a space: ");
         scanf("%d %d", &row, &col);
-        if (row < 0 || row > 2 || col < 0 || col > 2)
-        {
-            printf("Jogada inválida. Tente novamente.\n");
-            continue;
+
+        if (state->board[row][col] != EMPTY) {
+            printf("That space is already occupied. Try again.\n");
+        } else {
+            state->board[row][col] = PLAYER_PIECE;
+            state->turn = COMPUTER;
         }
-        if (board[row][col] != '-')
-        {
-            printf("Espaço ocupado. Tente novamente.\n");
-            continue;
-        }
-        board[row][col] = player;
-        print_board();
-        if (check_winner(player))
-        {
-            printf("Jogador %c venceu!\n", player);
-            return;
-        }
-        turn++;
-        player = turn % 2 == 0 ? 'O' : 'X';
+    } else {
+        pthread_create(&computer_thread, NULL, computer_move, (void *) state);
+        pthread_join(computer_thread, NULL);
+        state->turn = PLAYER;
     }
-    printf("Empate!\n");
+
+    display_board(state);
+
+    int result = game_over(state);
+    if (result != EMPTY) {
+        if (result == PLAYER) {
+            printf("You win!\n");
+        } else if (result == COMPUTER) {
+            printf("You lose!\n");
+        } else {
+            printf("Tie game!\n");
+        }
+        break;
+    }
 }
 
-int main()
-{
-    play_game();
-    return 0;
+free(state);
+
+return 0;
 }
-
-// Neste código, a função init_board() inicializa o tabuleiro com '-' em todas as posições.
-// A função print_board() imprime o tabuleiro na tela. A função check_winner() verifica se algum jogador ganhou o jogo.
-// A função play_game() é a função principal que controla o jogo, alternando entre os jogadores e verificando se alguém ganhou ou se houve empate.
-// A função main() chama a função play_game().
-
