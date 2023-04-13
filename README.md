@@ -1,4 +1,7 @@
-# Eduardo_IzidorioGabriel_Peixoto-ws-SO-RR-2023
+# Tic-Tac-Toe
+
+<img src="https://super.abril.com.br/wp-content/uploads/2018/07/jogo_da_velha_-_tic_tac_toe.png" alt="Jogo da Velha" style="zoom:5%;" />
+
 Repositório para registrar trabalho de seminário sobre o tema Jogo da Velha usando pthreading.
 
 O projeto a ser desenvolvido, consiste na criação do jogo da velha. Neste caso, o jogo será feito por dois usuários artificiais (ou seja duas threads) no mesmo jogo da velha. 
