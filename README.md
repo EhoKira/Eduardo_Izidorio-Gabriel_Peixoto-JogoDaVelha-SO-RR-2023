@@ -1,4 +1,4 @@
-# Tic-Tac-Toe
+# JogoDaVelha
 
 <img src="https://super.abril.com.br/wp-content/uploads/2018/07/jogo_da_velha_-_tic_tac_toe.png" alt="Jogo da Velha" style="zoom:5%;" />
 
