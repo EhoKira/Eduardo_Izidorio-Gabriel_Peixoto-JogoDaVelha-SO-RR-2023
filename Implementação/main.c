@@ -32,35 +32,36 @@ void *player_thread(void *v_args)
         {
             break;
         }
-        // se o turno for igual a mark da thread ('x' = 0 e 'o' = 1), então é a
-        // vez dessa thread jogar.
+        // se o turno for igual a mark da thread ('x' = 0 e 'o' = 1), então é a vez dessa thread jogar.
         if (turn == mark)
         {
-            // enquanto o movimento for invalido (espaço já ocupado), tenta novamente
-            // com diferentes coordenadas.
+            //Gera coordenadas dentro do tabuleiro.
             y = rand() % 3;
             x = rand() % 3;
+            //Verifica se a jogada é valida. Enquanto o movimento for invalido, tenta novamente com diferentes coordenadas.
             while (!verificaJogo(t, y, x, marks[mark]))
             {
                 y = rand() % 3;
                 x = rand() % 3;
-                if (finished)
+                if (finished) //Se o jogo terminar durante a escolha da jogada, a thread sairá do loop.
                     break;
             }
-            pthread_mutex_lock(&lock);
+            pthread_mutex_lock(&lock); //A thread recebe um bloqueio mutex para garantir que apenas uma thread jogue de cada vez.
+            //Se a jogada ainda nao tiver sido registrada e o jogo ainda não tiver acabado, a thread registra a jogada e passa a vez.
             if (is_finished_verified && !finished)
             {
                 Jogar(t, y, x, marks[mark]);
                 is_finished_verified = 0;
                 turn = !turn;
             }
-            pthread_mutex_unlock(&lock);
+            pthread_mutex_unlock(&lock); //O bloqueio mutex é liberado.
         }
-        else
+        else //Se nao for a vez da thread jogar, ela executa a condicao abaixo.
         {
             if (!is_finished_verified)
             {
                 pthread_mutex_lock(&lock);
+                //verifica se alguém ganhou o jogo ou se está cheio.
                 if (someoneWin(t) || isFull(t))
                 {
                     finished = 1;
