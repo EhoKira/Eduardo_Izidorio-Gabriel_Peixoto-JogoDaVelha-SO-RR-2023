@@ -2,7 +2,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <unistd.h>
-//mudou algo
+
 char marks[2] = {'x', 'o'};
 int turn = 0;
 int finished = 0;
