@@ -8,7 +8,7 @@ int turn = 0;
 int finished = 0;
 int is_finished_verified = 1;
 
-// Estrutura a ser usada como forma de passar argumentos para a função player_thread. gcc -pthread main.c tictactoe.c -o test
+// Estrutura a ser usada como forma de passar argumentos para a função player_thread.
 typedef struct player_thread_args
 {
     jogodavelha *t;
