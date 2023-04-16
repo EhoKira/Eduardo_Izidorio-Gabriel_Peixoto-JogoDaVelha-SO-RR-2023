@@ -87,43 +87,6 @@ void *player_thread(void *v_args)
     }
 }
 
-void noThreadPlay()
-{
-    jogodavelha *t = criarjogodavelha();
-    int npt_finished = 0;
-    int x, y;
-    int turn = 0;
-    while (!npt_finished)
-    {
-        y = rand() % 3;
-        x = rand() % 3;
-        while (!verificaJogo(t, y, x, marks[turn]))
-        {
-            y = rand() % 3;
-            x = rand() % 3;
-        }
-        Jogar(t, y, x, marks[turn]);
-        printJogoDaVelha(t);
-        printf("\n");
-        turn = !turn;
-        if (isFull(t) || someoneWin(t))
-            npt_finished = 1;
-    }
-    if (!someoneWin(t))
-    {
-        printf("DEU VELHA !!!\n");
-    }
-    else if (isWin(t, marks[0]))
-    {
-        printf("%c GANHOU !!!\n", marks[0]);
-    }
-    else
-    {
-        printf("%c PERDEU !!!\n", marks[1]);
-    }
-    destroyJogoDaVelha(t);
-}
-
 int main()
 {
     clock_t start, end;
