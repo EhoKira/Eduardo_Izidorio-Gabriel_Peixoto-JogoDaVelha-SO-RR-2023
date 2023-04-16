@@ -8,7 +8,7 @@ int turn = 0;
 int finished = 0;
 int is_finished_verified = 1;
 
-// Estrutura a ser usada como forma de passar argumentos para a função player_thread.
+// Estrutura a ser usada como forma de passar argumentos para a função player_thread. 
 typedef struct player_thread_args
 {
     jogodavelha *t;
@@ -119,7 +119,7 @@ void noThreadPlay()
     }
     else
     {
-        printf("%c GANHOU !!!\n", marks[1]);
+        printf("%c PERDEU !!!\n", marks[1]);
     }
     destroyJogoDaVelha(t);
 }
