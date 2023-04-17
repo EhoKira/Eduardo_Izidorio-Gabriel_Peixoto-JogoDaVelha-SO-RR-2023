@@ -1,11 +1,3 @@
-//Esse é um arquivo de cabeçalho em C que contém a declaração de uma estrutura de dados chamada
-//TicTacToe (Jogo da velha) e as declarações de suas funções associadas.
-
-//A estrutura de dados TicTacToe contém uma matriz de caracteres de tamanho 3x3 que 
-//representa o tabuleiro do jogo da velha.
-
-//E suas funções são:
-
 #ifndef _JOGODAVELHA_H_
 #define _JOGODAVELHA_H_
 
@@ -27,6 +19,3 @@ int isFull(jogodavelha* t); // verifica se o tabuleiro "t" está completamente p
 int someoneWin(jogodavelha* t); // verifica se alguém ganhou o jogo no tabuleiro "t". Se sim, retorna 1; caso contrário, retorna 0.
 
 #endif 
-
-//O uso de #ifndef, #define e #endif é uma técnica de programação conhecida como "inclusão de guarda" que previne a redefinição das declarações
-//de cabeçalho caso o arquivo seja incluído mais de uma vez em um mesmo programa.
